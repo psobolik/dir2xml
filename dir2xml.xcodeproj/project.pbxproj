@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		512D792F1D60AFA20083491D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512D792E1D60AFA20083491D /* main.swift */; };
+		51C348731D611CE50084246B /* Dir2XmlFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C348721D611CE50084246B /* Dir2XmlFile.swift */; };
+		51D448A21D61416D004B21D8 /* Dir2XmlFolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D448A11D61416D004B21D8 /* Dir2XmlFolder.swift */; };
+		51D448A41D6142A2004B21D8 /* Dir2XmlItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D448A31D6142A2004B21D8 /* Dir2XmlItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +28,9 @@
 /* Begin PBXFileReference section */
 		512D792B1D60AFA20083491D /* dir2xml */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dir2xml; sourceTree = BUILT_PRODUCTS_DIR; };
 		512D792E1D60AFA20083491D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		51C348721D611CE50084246B /* Dir2XmlFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dir2XmlFile.swift; sourceTree = "<group>"; };
+		51D448A11D61416D004B21D8 /* Dir2XmlFolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dir2XmlFolder.swift; sourceTree = "<group>"; };
+		51D448A31D6142A2004B21D8 /* Dir2XmlItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dir2XmlItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,9 @@
 			isa = PBXGroup;
 			children = (
 				512D792E1D60AFA20083491D /* main.swift */,
+				51C348721D611CE50084246B /* Dir2XmlFile.swift */,
+				51D448A11D61416D004B21D8 /* Dir2XmlFolder.swift */,
+				51D448A31D6142A2004B21D8 /* Dir2XmlItem.swift */,
 			);
 			path = dir2xml;
 			sourceTree = "<group>";
@@ -119,7 +128,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51C348731D611CE50084246B /* Dir2XmlFile.swift in Sources */,
+				51D448A41D6142A2004B21D8 /* Dir2XmlItem.swift in Sources */,
 				512D792F1D60AFA20083491D /* main.swift in Sources */,
+				51D448A21D61416D004B21D8 /* Dir2XmlFolder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,6 +253,7 @@
 				512D79341D60AFA20083491D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
