@@ -24,11 +24,13 @@ do {
     var doc = NSXMLElement.documentWithRootElement(root) as! NSXMLDocument
     doc.version = "1.0"
     doc.characterEncoding = "UTF-8"
-    let s = doc.XMLStringWithOptions(NSXMLNodePrettyPrint)
-    print (s)
+//    let s = doc.XMLStringWithOptions(NSXMLNodePrettyPrint)
+    let str = doc.XMLString
+    print (str)
 } catch {
     let e = error as NSError
-    print ("Whoops! \(e.localizedDescription)")
+    var mx_stderr = StandardErrorOutputStream()
+    print ("Error: \(e.localizedDescription)", toStream:&mx_stderr)
     exit(EXIT_FAILURE)
 }
 exit(EXIT_SUCCESS)
