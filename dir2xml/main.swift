@@ -49,32 +49,33 @@ func PrintErrorAndFail(message: String) {
     exit(EXIT_FAILURE)
 }
 
-do {
-    let (pathArg, prettyPrint) = try ParseArgs(Process.arguments)
-    if pathArg == "" {
-        PrintUsage()
-        exit(EXIT_FAILURE)
+func main() {
+    do {
+        let (pathArg, prettyPrint) = try ParseArgs(Process.arguments)
+        if pathArg == "" {
+            PrintUsage()
+            exit(EXIT_FAILURE)
+        }
+        
+        let pathUrl = NSURL(fileURLWithPath: NSString(string: pathArg).stringByExpandingTildeInPath)
+        let dir2XmlRoot = Dir2XmlItem()
+        try dir2XmlRoot.readFrom(pathUrl)
+        
+        let root = dir2XmlRoot.toElement()
+        let doc = NSXMLElement.documentWithRootElement(root) as! NSXMLDocument
+        doc.version = "1.0"
+        doc.characterEncoding = "UTF-8"
+        let str = doc.XMLStringWithOptions(prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
+        print (str)
+    } catch ArgError.WrongNumberOfArguments {
+        PrintErrorAndFail("Wrong number of arguments")
+    } catch ArgError.InvalidSwitch(let invalidSwitch) {
+        PrintErrorAndFail("Invalid switch: \(invalidSwitch)")
+    } catch {
+        let e = error as NSError
+        PrintErrorAndFail(e.localizedDescription)
     }
-    let pathUrl = NSURL(fileURLWithPath: NSString(string: pathArg).stringByExpandingTildeInPath)
-    let dir2XmlFolder = Dir2XmlFolder()
-    try dir2XmlFolder.Read(pathUrl)
-    
-    let root = dir2XmlFolder.makeElement()
-    for item in dir2XmlFolder.items {
-        root.addChild(item.makeElement())
-    }
-    var doc = NSXMLElement.documentWithRootElement(root) as! NSXMLDocument
-    doc.version = "1.0"
-    doc.characterEncoding = "UTF-8"
-    let str = doc.XMLStringWithOptions(prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
-    print (str)
-} catch ArgError.WrongNumberOfArguments {
-    PrintErrorAndFail("Wrong number of arguments")
-} catch ArgError.InvalidSwitch(let invalidSwitch) {
-    PrintErrorAndFail("Invalid switch: \(invalidSwitch)")
-} catch {
-    let e = error as NSError
-    PrintErrorAndFail(e.localizedDescription)
+    exit(EXIT_SUCCESS)
 }
-exit(EXIT_SUCCESS)
 
+main()
