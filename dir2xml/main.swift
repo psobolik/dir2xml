@@ -8,14 +8,56 @@
 
 import Foundation
 
-if Process.arguments.count < 2 {
-    print ("usage: \(Process.arguments[0]) <path>")
+enum ArgError: ErrorType {
+    case InvalidSwitch(invalidSwitch: String)
+    case WrongNumberOfArguments
+}
+
+func ParseArgs(args: [String]) throws -> (pathArg: String, prettyPrint: Bool) {
+    var result: (pathArg: String, prettyPrint: Bool) = ("", false)
+    
+    switch args.count {
+    case 1:
+        break
+    case 2:
+        if args[1].commonPrefixWithString("-", options: NSStringCompareOptions.LiteralSearch) == "-" {
+            throw ArgError.WrongNumberOfArguments
+        } else {
+            result.pathArg = args[1]
+        }
+    case 3:
+        if args[1] == "-p" {
+            result.prettyPrint = true
+            result.pathArg = args[2]
+        } else {
+            throw ArgError.InvalidSwitch(invalidSwitch: args[1])
+        }
+    default:
+        throw ArgError.WrongNumberOfArguments
+    }
+    return result
+}
+
+func PrintUsage() {
+    print ("usage: \(Process.arguments[0]) [-p] <path>")
+}
+
+func PrintErrorAndFail(message: String) {
+    var mx_stderr = StandardErrorOutputStream()
+    print ("Error: \(message)", toStream:&mx_stderr)
+    PrintUsage()
     exit(EXIT_FAILURE)
 }
-let path = NSURL(fileURLWithPath: NSString(string: Process.arguments[1]).stringByExpandingTildeInPath)
+
 do {
+    let (pathArg, prettyPrint) = try ParseArgs(Process.arguments)
+    if pathArg == "" {
+        PrintUsage()
+        exit(EXIT_FAILURE)
+    }
+    let pathUrl = NSURL(fileURLWithPath: NSString(string: pathArg).stringByExpandingTildeInPath)
     let dir2XmlFolder = Dir2XmlFolder()
-    try dir2XmlFolder.Read(path)
+    try dir2XmlFolder.Read(pathUrl)
     
     let root = dir2XmlFolder.makeElement()
     for item in dir2XmlFolder.items {
@@ -24,14 +66,15 @@ do {
     var doc = NSXMLElement.documentWithRootElement(root) as! NSXMLDocument
     doc.version = "1.0"
     doc.characterEncoding = "UTF-8"
-//    let s = doc.XMLStringWithOptions(NSXMLNodePrettyPrint)
-    let str = doc.XMLString
+    let str = doc.XMLStringWithOptions(prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
     print (str)
+} catch ArgError.WrongNumberOfArguments {
+    PrintErrorAndFail("Wrong number of arguments")
+} catch ArgError.InvalidSwitch(let invalidSwitch) {
+    PrintErrorAndFail("Invalid switch: \(invalidSwitch)")
 } catch {
     let e = error as NSError
-    var mx_stderr = StandardErrorOutputStream()
-    print ("Error: \(e.localizedDescription)", toStream:&mx_stderr)
-    exit(EXIT_FAILURE)
+    PrintErrorAndFail(e.localizedDescription)
 }
 exit(EXIT_SUCCESS)
 
