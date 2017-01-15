@@ -11,8 +11,8 @@ import Foundation
 class Dir2XmlItem {
     var path: String?
     var name: String?
-    var creationDate: NSDate?
-    var modificationDate: NSDate?
+    var creationDate: Date?
+    var modificationDate: Date?
     var owner: String?
     var group: String?
     var type: String?
@@ -20,27 +20,27 @@ class Dir2XmlItem {
     var size: NSNumber?
     var items: [Dir2XmlItem] = [Dir2XmlItem]()
 
-    let dateFormatter = NSDateFormatter()
+    let dateFormatter = DateFormatter()
     
     init() {
-        dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
     }
     
     func isDir() -> Bool {
         return self.type == "NSFileTypeDirectory"
     }
     
-    func readFrom(url: NSURL, level: Int = 0) throws {
+    func readFrom(_ url: URL, level: Int = 0) throws {
         self.path = url.path
         self.name = url.lastPathComponent
 
-        let fileManager = NSFileManager.defaultManager()
-        self.setAttributes(try fileManager.attributesOfItemAtPath(url.path!))
+        let fileManager = FileManager.default
+        self.setAttributes(try fileManager.attributesOfItem(atPath: url.path) as! [String : AnyObject])
         
         if self.isDir() && level >= 0 {
-            let contentsOfDirectory = try fileManager.contentsOfDirectoryAtURL(url, includingPropertiesForKeys: nil, options:NSDirectoryEnumerationOptions.SkipsSubdirectoryDescendants)
+            let contentsOfDirectory = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options:FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants)
             for itemUrl in contentsOfDirectory {
                 let item = Dir2XmlItem()
                 self.items.append(item)
@@ -49,17 +49,17 @@ class Dir2XmlItem {
         }
     }
 
-    func setAttributes(attributes:[String : AnyObject]) {
-        self.creationDate = attributes["NSFileCreationDate"] as! NSDate?
+    func setAttributes(_ attributes:[String : AnyObject]) {
+        self.creationDate = attributes["NSFileCreationDate"] as! Date?
         self.type = attributes["NSFileType"] as! String?
         self.owner = attributes["NSFileOwnerAccountName"] as! String?
         self.group = attributes["NSFileGroupOwnerAccountName"] as! String?
-        self.modificationDate = attributes["NSFileModificationDate"] as! NSDate?
+        self.modificationDate = attributes["NSFileModificationDate"] as! Date?
         self.permissions = attributes["NSFilePosixPermissions"] as! NSNumber?
         self.size = attributes["NSFileSize"] as! NSNumber?
     }
     
-    func toElement() -> NSXMLElement {
+    func toElement() -> XMLElement {
         let result = makeElement()
         for child in items {
             result.addChild(child.toElement())
@@ -67,16 +67,16 @@ class Dir2XmlItem {
         return result
     }
     
-    func makeElement() -> NSXMLElement {
-        let result = NSXMLNode.elementWithName(type!) as! NSXMLElement
-        if (name != nil) { result.addAttribute(NSXMLNode.attributeWithName("name", stringValue: name!) as! NSXMLNode) }
-        if (path != nil) { result.addAttribute(NSXMLNode.attributeWithName("path", stringValue: path!) as! NSXMLNode) }
-        if (creationDate != nil) { result.addAttribute(NSXMLNode.attributeWithName("creationDate", stringValue: dateFormatter.stringFromDate(creationDate!)) as! NSXMLNode) }
-        if (modificationDate != nil) { result.addAttribute(NSXMLNode.attributeWithName("modificationDate", stringValue: dateFormatter.stringFromDate(modificationDate!)) as! NSXMLNode) }
-        if (owner != nil) { result.addAttribute(NSXMLNode.attributeWithName("owner", stringValue: owner!) as! NSXMLNode) }
-        if (group != nil) { result.addAttribute(NSXMLNode.attributeWithName("group", stringValue: group!) as! NSXMLNode) }
-        if (permissions != nil) { result.addAttribute(NSXMLNode.attributeWithName("permissions", stringValue: String(format:"%2O", (permissions?.shortValue)!)) as! NSXMLNode) }
-        if (size != nil) { result.addAttribute(NSXMLNode.attributeWithName("size", stringValue: String(size!)) as! NSXMLNode) }
+    func makeElement() -> XMLElement {
+        let result = XMLNode.element(withName: type!) as! XMLElement
+        if (name != nil) { result.addAttribute(XMLNode.attribute(withName: "name", stringValue: name!) as! XMLNode) }
+        if (path != nil) { result.addAttribute(XMLNode.attribute(withName: "path", stringValue: path!) as! XMLNode) }
+        if (creationDate != nil) { result.addAttribute(XMLNode.attribute(withName: "creationDate", stringValue: dateFormatter.string(from: creationDate!)) as! XMLNode) }
+        if (modificationDate != nil) { result.addAttribute(XMLNode.attribute(withName: "modificationDate", stringValue: dateFormatter.string(from: modificationDate!)) as! XMLNode) }
+        if (owner != nil) { result.addAttribute(XMLNode.attribute(withName: "owner", stringValue: owner!) as! XMLNode) }
+        if (group != nil) { result.addAttribute(XMLNode.attribute(withName: "group", stringValue: group!) as! XMLNode) }
+        if (permissions != nil) { result.addAttribute(XMLNode.attribute(withName: "permissions", stringValue: String(format:"%2O", (permissions?.int16Value)!)) as! XMLNode) }
+        if (size != nil) { result.addAttribute(XMLNode.attribute(withName: "size", stringValue: String(describing: size!)) as! XMLNode) }
         return result
     }
 }

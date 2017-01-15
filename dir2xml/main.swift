@@ -8,20 +8,20 @@
 
 import Foundation
 
-enum ArgError: ErrorType {
-    case InvalidSwitch(invalidSwitch: String)
-    case WrongNumberOfArguments
+enum ArgError: Error {
+    case invalidSwitch(invalidSwitch: String)
+    case wrongNumberOfArguments
 }
 
-func ParseArgs(args: [String]) throws -> (pathArg: String, prettyPrint: Bool) {
+func ParseArgs(_ args: [String]) throws -> (pathArg: String, prettyPrint: Bool) {
     var result: (pathArg: String, prettyPrint: Bool) = ("", false)
     
     switch args.count {
     case 1:
         break
     case 2:
-        if args[1].commonPrefixWithString("-", options: NSStringCompareOptions.LiteralSearch) == "-" {
-            throw ArgError.WrongNumberOfArguments
+        if args[1].commonPrefix(with: "-", options: NSString.CompareOptions.literal) == "-" {
+            throw ArgError.wrongNumberOfArguments
         } else {
             result.pathArg = args[1]
         }
@@ -30,46 +30,46 @@ func ParseArgs(args: [String]) throws -> (pathArg: String, prettyPrint: Bool) {
             result.prettyPrint = true
             result.pathArg = args[2]
         } else {
-            throw ArgError.InvalidSwitch(invalidSwitch: args[1])
+            throw ArgError.invalidSwitch(invalidSwitch: args[1])
         }
     default:
-        throw ArgError.WrongNumberOfArguments
+        throw ArgError.wrongNumberOfArguments
     }
     return result
 }
 
 func PrintUsage() {
-    print ("usage: \(Process.arguments[0]) [-p] <path>")
+    print ("usage: \(CommandLine.arguments[0]) [-p] <path>")
 }
 
-func PrintErrorAndFail(message: String) {
+func PrintErrorAndFail(_ message: String) {
     var mx_stderr = StandardErrorOutputStream()
-    print ("Error: \(message)", toStream:&mx_stderr)
+    print ("Error: \(message)", to:&mx_stderr)
     PrintUsage()
     exit(EXIT_FAILURE)
 }
 
 func main() {
     do {
-        let (pathArg, prettyPrint) = try ParseArgs(Process.arguments)
+        let (pathArg, prettyPrint) = try ParseArgs(CommandLine.arguments)
         if pathArg == "" {
             PrintUsage()
             exit(EXIT_FAILURE)
         }
         
-        let pathUrl = NSURL(fileURLWithPath: NSString(string: pathArg).stringByExpandingTildeInPath)
+        let pathUrl = URL(fileURLWithPath: NSString(string: pathArg).expandingTildeInPath)
         let dir2XmlRoot = Dir2XmlItem()
         try dir2XmlRoot.readFrom(pathUrl)
         
         let root = dir2XmlRoot.toElement()
-        let doc = NSXMLElement.documentWithRootElement(root) as! NSXMLDocument
+        let doc = XMLElement.document(withRootElement: root) as! XMLDocument
         doc.version = "1.0"
         doc.characterEncoding = "UTF-8"
-        let str = doc.XMLStringWithOptions(prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
+        let str = doc.xmlString(withOptions: prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
         print (str)
-    } catch ArgError.WrongNumberOfArguments {
+    } catch ArgError.wrongNumberOfArguments {
         PrintErrorAndFail("Wrong number of arguments")
-    } catch ArgError.InvalidSwitch(let invalidSwitch) {
+    } catch ArgError.invalidSwitch(let invalidSwitch) {
         PrintErrorAndFail("Invalid switch: \(invalidSwitch)")
     } catch {
         let e = error as NSError
