@@ -65,7 +65,9 @@ func main() {
         let doc = XMLElement.document(withRootElement: root) as! XMLDocument
         doc.version = "1.0"
         doc.characterEncoding = "UTF-8"
-        let str = doc.xmlString(withOptions: prettyPrint ? NSXMLNodePrettyPrint : NSXMLNodeOptionsNone)
+//        let options = prettyPrint ? XMLNode.Options.nodePrettyPrint : XMLNode.Options.nodePreserveQuotes
+        // Can't pretty print! Can't call XMLNode.xmlString(withOptions:)!
+        let str =  doc.xmlString // prettyPrint ? doc.xmlString : doc.xmlString(withOptions: XMLNode.Options.nodePrettyPrint)
         print (str)
     } catch ArgError.wrongNumberOfArguments {
         PrintErrorAndFail("Wrong number of arguments")

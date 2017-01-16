@@ -37,7 +37,7 @@ class Dir2XmlItem {
         self.name = url.lastPathComponent
 
         let fileManager = FileManager.default
-        self.setAttributes(try fileManager.attributesOfItem(atPath: url.path) as! [String : AnyObject])
+        self.setAttributes(try fileManager.attributesOfItem(atPath: url.path))// as! [String : AnyObject])
         
         if self.isDir() && level >= 0 {
             let contentsOfDirectory = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options:FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants)
@@ -49,14 +49,14 @@ class Dir2XmlItem {
         }
     }
 
-    func setAttributes(_ attributes:[String : AnyObject]) {
-        self.creationDate = attributes["NSFileCreationDate"] as! Date?
-        self.type = attributes["NSFileType"] as! String?
-        self.owner = attributes["NSFileOwnerAccountName"] as! String?
-        self.group = attributes["NSFileGroupOwnerAccountName"] as! String?
-        self.modificationDate = attributes["NSFileModificationDate"] as! Date?
-        self.permissions = attributes["NSFilePosixPermissions"] as! NSNumber?
-        self.size = attributes["NSFileSize"] as! NSNumber?
+    func setAttributes(_ attributes:[FileAttributeKey: Any]) {
+        self.creationDate = attributes[FileAttributeKey.creationDate] as! Date?
+        self.type = attributes[FileAttributeKey.type] as! String?
+        self.owner = attributes[FileAttributeKey.ownerAccountName] as! String?
+        self.group = attributes[FileAttributeKey.groupOwnerAccountName] as! String?
+        self.modificationDate = attributes[FileAttributeKey.modificationDate] as! Date?
+        self.permissions = attributes[FileAttributeKey.posixPermissions] as! NSNumber?
+        self.size = attributes[FileAttributeKey.size] as! NSNumber?
     }
     
     func toElement() -> XMLElement {

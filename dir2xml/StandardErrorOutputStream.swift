@@ -8,9 +8,9 @@
 
 import Foundation
 
-class StandardErrorOutputStream: OutputStream {
+class StandardErrorOutputStream: TextOutputStream {
     func write(_ string: String) {
-        let stderr = FileHandle.withStandardError
+        let stderr = FileHandle.standardError
         stderr.write(string.data(using: String.Encoding.utf8)!)
     }
 }
